@@ -1,0 +1,19 @@
+{
+  "name": "list-s3",
+  "version": "1.0.0",
+  "description": "Lambda to List Objects S3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "S3",
+    "Lambda",
+    "Pragma"
+  ],
+  "author": "Jonathan Vega",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.588.0"
+  }
+}

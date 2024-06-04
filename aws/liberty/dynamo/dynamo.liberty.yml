@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create Dynamo to project'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+
+Resources:
+  DynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${Stage}-inventory-${CostCenter}
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: N
+        - AttributeName: Name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+        - AttributeName: Name
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+Outputs:
+  DynamoTableName:
+    Description: "Name of the Table DynamoDBTable"
+    Value: !Ref DynamoTable
+    Export:
+      Name: "DynamoTableName"
+
+  DynamoDBTableArn:
+    Description: "Arn of the Table DynamoDBTable"
+    Value: !GetAtt DynamoTable.Arn
+    Export:
+      Name: DynamoDBTableArn

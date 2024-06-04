@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'Create Api Keys'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+
+  MyApi:
+    Type: String
+    Description: "Api Rest ID"
+    Default: kjhcxpht7d
+
+Resources:
+  Deployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    Properties:
+      RestApiId: !Ref MyApi
+      Description: !Sub My deployment - ${Stage}
+      StageName: !Ref Stage
+
+  MyApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Enabled: true
+      Name: !Sub apikey-${Stage}-${CostCenter}
+      Description: API Key for My API
+    DependsOn: Deployment
+
+  MyUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        - ApiId: !Ref MyApi
+          Stage: !Ref Stage
+      Description: Usage Plan for My API
+      Quota:
+        Limit: 5000
+        Period: MONTH
+      Throttle:
+        BurstLimit: 200
+        RateLimit: 100
+
+  MyUsagePlanApiKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref MyApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref MyUsagePlan
+
+Outputs:
+  ApiDeploymentId:
+    Description: The deployment ID of the API Gateway
+    Value: !Ref Deployment
+
+  ApiKeyId:
+    Description: The API Key ID
+    Value: !Ref MyApiKey
+
+  UsagePlanId:
+    Description: The Usage Plan ID
+    Value: !Ref MyUsagePlan
+
+  UsagePlanKeyId:
+    Description: The Usage Plan Key ID
+    Value: !Ref MyUsagePlanApiKey
+
+  ApiEndpoint:
+    Description: The endpoint of the API
+    Value: !Sub https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}

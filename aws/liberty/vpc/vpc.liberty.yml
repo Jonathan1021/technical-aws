@@ -1,0 +1,243 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create VPC to project'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '10.0.0.0/16'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub vpc-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: stage
+          Value: !Ref Stage
+
+  # Internet Gateway
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub igw-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Attach Internet Gateway to VPC
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Public Subnet 1
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.0.1.0/24'
+      AvailabilityZone: us-east-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub subnet-public-1a-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Public Subnet 2
+  PublicSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.0.2.0/24'
+      AvailabilityZone: us-east-1b
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub subnet-public-1b-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Private Subnet 1
+  PrivateSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.0.3.0/24'
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: !Sub subnet-private-1a-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Private Subnet 2
+  PrivateSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.0.4.0/24'
+      AvailabilityZone: us-east-1b
+      Tags:
+        - Key: Name
+          Value: !Sub subnet-private-1b-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Route Table for Public Subnets
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub rtb-public-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Route for Internet access in Public Route Table
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+
+  # Associate Public Subnets with Public Route Table
+  PublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  # NAT Gateway Elastic IP
+  NatEIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+
+  # NAT Gateway
+  NatGateway:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt NatEIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub nat-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Route Table for Private Subnets
+  PrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub rtb-priv-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: owner
+          Value: pragma
+
+  # Route for NAT Gateway in Private Route Table
+  PrivateRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGateway
+
+  # Associate Private Subnets with Private Route Table
+  PrivateSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnet2
+      RouteTableId: !Ref PrivateRouteTable
+
+Outputs:
+  VpcId:
+    Value: !Ref VPC
+    Export:
+      Name: !Sub VPC-${Stage}-${CostCenter}
+
+  PublicSubnet1Id:
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: !Sub PublicSubnet1-${Stage}-${CostCenter}-Id
+
+  PublicSubnet2Id:
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: !Sub PublicSubnet2-${Stage}-${CostCenter}-Id
+
+  PrivateSubnet1Id:
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: !Sub PrivateSubnet1-${Stage}-${CostCenter}-Id
+      
+  PrivateSubnet2Id:
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: !Sub PrivateSubnet2-${Stage}-${CostCenter}-Id

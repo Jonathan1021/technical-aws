@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create S3 Buckets to project'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub s3-demo-${Stage}-${CostCenter}
+      AccessControl: Private
+      Tags:
+        - Key: Name
+          Value: !Sub s3-demo-${Stage}-${CostCenter}
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+  
+Outputs:
+  S3BucketName:
+    Description: The name of the S3 bucket
+    Value: !Ref S3Bucket

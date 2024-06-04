@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create Api Rest to project'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+
+Resources:
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub api-${Stage}-${CostCenter}
+      Description: API Gateway with BasePath "liberty"
+      Tags:
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+
+  ApiGatewayLogsIAMRole: 
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: !Sub ${AWS::StackName}-role
+      AssumeRolePolicyDocument: 
+        Version: '2012-10-17'
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service: 
+                - apigateway.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      Path: /
+      Policies: 
+        - PolicyName: AmazonAPIGatewayPushToCloudWatchLogs
+          PolicyDocument: 
+            Version: '2012-10-17'
+            Statement: 
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                Resource: '*'
+          
+  ApiGatewayLogs:
+    Type: AWS::ApiGateway::Account
+    Properties: 
+      CloudWatchRoleArn: !GetAtt ApiGatewayLogsIAMRole.Arn
+
+  DynamoResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: "dynamo"
+      RestApiId: !Ref RestApi
+
+  S3Resource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: "s3"
+      RestApiId: !Ref RestApi
+
+  RequestValidator:
+    Type: AWS::ApiGateway::RequestValidator
+    Properties:
+      RestApiId: !Ref RestApi
+      Name: !Sub request-validator-${Stage}-${CostCenter}
+      ValidateRequestBody: true
+      ValidateRequestParameters: true
+
+Outputs:
+  MyApi:
+    Value: !Ref RestApi
+    Export:
+      Name: !Sub RestApiId-${Stage}-${CostCenter}
+
+  MyApiRootResourceId:
+    Value: !GetAtt RestApi.RootResourceId
+    Export:
+      Name: !Sub RestApiRootResourceId-${Stage}-${CostCenter}
+
+  S3ResourceId:
+    Value: !GetAtt S3Resource.ResourceId
+    Export:
+      Name: !Sub S3ResourceId-${Stage}-${CostCenter}
+
+  DynamoResourceId:
+    Value: !GetAtt DynamoResource.ResourceId
+    Export:
+      Name: !Sub DynamoResourceId-${Stage}-${CostCenter}
+
+  RequestValidatorId:
+    Value: !Ref RequestValidator
+    Export:
+      Name: !Sub RequestValidatorId-${Stage}-${CostCenter}
+  

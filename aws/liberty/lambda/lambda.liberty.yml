@@ -1,0 +1,211 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create Lambda to project'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+  BucketFunctionName:
+    Type: String
+    Description: "Bucket Function"
+    Default: functions-liberty
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket
+    Default: s3-demo-dev-liberty
+  DynamoTableName:
+    Type: String
+    Description: The name of the Dynamo Table
+    Default: dev-inventory-liberty
+  PrivateSubnet1Id:
+    Type: String
+    Description: Private Subnet 1 ID
+    Default: subnet-04ce06535db359fa0
+  PrivateSubnet2Id:
+    Type: String
+    Description: Private Subnet 2 ID
+    Default: subnet-06de426ba4f37362e
+  SecurityGroup:
+    Type: String
+    Description: Security Group
+    Default: sg-0e75aa01848376150
+  MyApi:
+    Type: String
+    Description: API Id
+    Default: kjhcxpht7d
+  S3ResourceId:
+    Type: String
+    Description: S3 Root Resource
+    Default: dcyeuq
+  DynamoResourceId:
+    Type: String
+    Description: Dynamo Root Resource
+    Default: ot3l9v
+  RequestValidatorId:
+    Type: String
+    Description: Request Validator Id
+
+Resources:
+  ListS3Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${Stage}-list-s3-${CostCenter}
+      Description: 'Lambda to List Object S3'
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Role: !GetAtt LambdaExecutionRoleS3.Arn
+      Code:
+        S3Bucket: !Ref BucketFunctionName
+        S3Key: list-s3.zip
+      Timeout: 120
+      MemorySize: 128
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1Id
+          - !Ref PrivateSubnet2Id
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref S3BucketName
+  
+  LambdaExecutionRoleS3:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeSubnets
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource: 
+                  - !Sub "arn:aws:s3:::${S3BucketName}"
+                  - !Sub "arn:aws:s3:::${S3BucketName}/*"
+
+  ListDynamoLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${Stage}-list-dynamo-${CostCenter}
+      Description: 'Lambda to List Items Dynamo'
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRoleDynamo.Arn
+      Code:
+        S3Bucket: !Ref BucketFunctionName
+        S3Key: list-dynamo.zip
+      Timeout: 120
+      MemorySize: 128
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1Id
+          - !Ref PrivateSubnet2Id
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoTableName
+
+  LambdaExecutionRoleDynamo:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeSubnets
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:Scan
+                Resource: 
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoTableName}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoTableName}*"
+
+  # Permission Lambda Invoke
+  LambdaInvokePermissionS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ListS3Lambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  ListS3ApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref MyApi
+      ResourceId: !Ref S3ResourceId
+      ApiKeyRequired: true
+      HttpMethod: POST
+      AuthorizationType: NONE
+      RequestValidatorId: !Ref RequestValidatorId
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListS3Lambda.Arn}/invocations
+
+  LambdaInvokePermissionDynamo:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ListDynamoLambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  ListDynamoApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref MyApi
+      ResourceId: !Ref DynamoResourceId
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListDynamoLambda.Arn}/invocations

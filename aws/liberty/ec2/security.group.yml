@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create S3 Buckets to project'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Description: "Cost Center"
+    Default: liberty
+  Stage:
+    Type: String
+    Description: "Stage"
+    AllowedValues:
+      - dev
+      - stg
+      - pdn
+    Default: dev
+  VpcId:
+    Type: String
+    Description: "Vpc Id"
+
+Resources:
+  LibertySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group that allows inbound all traffic from anywhere all outbound traffic
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIpv6: ::/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIpv6: ::/0
+      Tags:
+        - Key: name
+          Value: !Sub ${Stage}-${CostCenter}-sg
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: stage
+          Value: !Ref Stage
+
+Outputs:
+  SecurityGroupId:
+    Description: The ID of the security group
+    Value: !Ref LibertySecurityGroup
