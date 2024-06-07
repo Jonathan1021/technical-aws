@@ -110,4 +110,8 @@ Resources:
         S3BucketName: !GetAtt S3Stack.Outputs.S3BucketName
         CostCenter: !Ref CostCenter
         Stage: !Ref Stage
+        MyApi: !GetAtt ApiGatewayStack.Outputs.MyApi
       TimeoutInMinutes: '10'
+    DependsOn: 
+      - ApiGatewayStack
+      - S3Stack
