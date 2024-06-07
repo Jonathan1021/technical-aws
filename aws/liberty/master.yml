@@ -90,7 +90,7 @@ Resources:
   ApiKeyStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: 'https://cloudformation-liberty.s3.amazonaws.com/aws/liberty/api-gateway/api-key.liberty'
+      TemplateURL: 'https://cloudformation-liberty.s3.amazonaws.com/aws/liberty/api-gateway/api-key.liberty.yml'
       Parameters:
         CostCenter: !Ref CostCenter
         Stage: !Ref Stage
