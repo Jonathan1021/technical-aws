@@ -67,16 +67,6 @@ Resources:
         CostCenter: !Ref CostCenter
         Stage: !Ref Stage
       TimeoutInMinutes: '10'
-
-  CloudFrontStack:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: 'https://cloudformation-liberty.s3.amazonaws.com/aws/liberty/cloudfront/cloudfront.liberty.yml'
-      Parameters:
-        S3BucketName: !GetAtt S3Stack.Outputs.S3BucketName
-        CostCenter: !Ref CostCenter
-        Stage: !Ref Stage
-      TimeoutInMinutes: '10'
   
   LambdaStack:
     Type: 'AWS::CloudFormation::Stack'
@@ -105,4 +95,14 @@ Resources:
         CostCenter: !Ref CostCenter
         Stage: !Ref Stage
         MyApi: !GetAtt ApiGatewayStack.Outputs.MyApi
+      TimeoutInMinutes: '10'
+
+  CloudFrontStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: 'https://cloudformation-liberty.s3.amazonaws.com/aws/liberty/cloudfront/cloudfront.liberty.yml'
+      Parameters:
+        S3BucketName: !GetAtt S3Stack.Outputs.S3BucketName
+        CostCenter: !Ref CostCenter
+        Stage: !Ref Stage
       TimeoutInMinutes: '10'

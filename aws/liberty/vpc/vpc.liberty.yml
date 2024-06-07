@@ -28,8 +28,10 @@ Resources:
           Value: !Sub vpc-${Stage}-${CostCenter}
         - Key: Cost Center
           Value: !Ref CostCenter
-        - Key: stage
+        - Key: Stage
           Value: !Ref Stage
+        - Key: lm_troux_uid
+          Value: 123
 
   # Internet Gateway
   InternetGateway:
@@ -42,8 +44,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Attach Internet Gateway to VPC
   AttachGateway:
@@ -67,8 +69,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Public Subnet 2
   PublicSubnet2:
@@ -85,8 +87,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Private Subnet 1
   PrivateSubnet1:
@@ -102,8 +104,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Private Subnet 2
   PrivateSubnet2:
@@ -119,8 +121,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Route Table for Public Subnets
   PublicRouteTable:
@@ -134,8 +136,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Route for Internet access in Public Route Table
   PublicRoute:
@@ -163,6 +165,13 @@ Resources:
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
+      Tags:
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: lm_troux_uid
+          Value: 123
 
   # NAT Gateway
   NatGateway:
@@ -177,8 +186,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Route Table for Private Subnets
   PrivateRouteTable:
@@ -192,8 +201,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
-        - Key: owner
-          Value: pragma
+        - Key: lm_troux_uid
+          Value: 123
 
   # Route for NAT Gateway in Private Route Table
   PrivateRoute:

@@ -36,6 +36,13 @@ Resources:
       Enabled: true
       Name: !Sub apikey-${Stage}-${CostCenter}
       Description: API Key for My API
+      Tags:
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: lm_troux_uid
+          Value: 123
     DependsOn: Deployment
 
   MyUsagePlan:
@@ -51,6 +58,13 @@ Resources:
       Throttle:
         BurstLimit: 200
         RateLimit: 100
+      Tags:
+        - Key: Cost Center
+          Value: !Ref CostCenter
+        - Key: Stage
+          Value: !Ref Stage
+        - Key: lm_troux_uid
+          Value: 123
 
   MyUsagePlanApiKey:
     Type: AWS::ApiGateway::UsagePlanKey

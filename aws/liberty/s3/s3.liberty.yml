@@ -29,6 +29,8 @@ Resources:
           Value: !Ref CostCenter
         - Key: Stage
           Value: !Ref Stage
+        - Key: lm_troux_uid
+          Value: 123
   
 Outputs:
   S3BucketName:

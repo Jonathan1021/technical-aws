@@ -5,6 +5,10 @@ Parameters:
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket
+  MyApi:
+    Type: String
+    Description: API Id
+    Default: kjhcxpht7d
   CostCenter:
     Type: String
     Description: "Cost Center"
@@ -49,7 +53,14 @@ Resources:
         DefaultRootObject: index.html
         ViewerCertificate:
           CloudFrontDefaultCertificate: true
-  
+      Tags:
+      - Key: Cost Center
+        Value: !Ref CostCenter
+      - Key: Stage
+        Value: !Ref Stage
+      - Key: lm_troux_uid
+        Value: 123
+
   S3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
@@ -62,11 +73,91 @@ Resources:
               CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
             Resource: !Sub 'arn:aws:s3:::${S3BucketName}/*'
 
+  OriginRequestPolicyApiGateway:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: OriginRequestPolicyApiGateway
+        QueryStringsConfig:
+          QueryStringBehavior: all
+        CookiesConfig:
+          CookieBehavior: all
+        HeadersConfig:
+          HeaderBehavior: allExcept
+          Headers: 
+            - host
+
+  CachePolicyDisabled:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Comment: Policy with caching disabled
+        Name: CachePolicyApiDisabled
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+  
+  CloudFrontDistributionApi:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - POST
+            - DELETE 
+            - OPTIONS
+            - PUT
+            - PATCH
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          TargetOriginId: apiOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: !Ref CachePolicyDisabled
+          OriginRequestPolicyId: !Ref OriginRequestPolicyApiGateway
+        DefaultRootObject: index.html
+        Origins:
+          - Id: apiOrigin
+            DomainName: !Sub "${MyApi}.execute-api.${AWS::Region}.amazonaws.com"
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: 
+                - TLSv1.2
+      Tags:
+      - Key: Cost Center
+        Value: !Ref CostCenter
+      - Key: Stage
+        Value: !Ref Stage
+      - Key: lm_troux_uid
+        Value: 123
+
 Outputs:
-  CloudFrontDistributionId:
+  CloudFrontDistributionApiId:
+    Description: ID de la distribución de CloudFront API
+    Value: !Ref CloudFrontDistributionApi
+
+  CloudFrontDomainNameApi:
+    Description: Dominio de CloudFront API
+    Value: !GetAtt CloudFrontDistributionApi.DomainName
+
+  CloudFrontDistributionS3Id:
     Description: The ID of the CloudFront distribution
     Value: !Ref CloudFrontDistribution
 
-  CloudFrontDomainName:
+  CloudFrontDomainNameS3:
     Description: The domain name of the CloudFront distribution
     Value: !GetAtt CloudFrontDistribution.DomainName

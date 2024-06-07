@@ -43,12 +43,14 @@ Resources:
           ToPort: -1
           CidrIpv6: ::/0
       Tags:
-        - Key: name
+        - Key: Name
           Value: !Sub ${Stage}-${CostCenter}-sg
         - Key: Cost Center
           Value: !Ref CostCenter
-        - Key: stage
+        - Key: Stage
           Value: !Ref Stage
+        - Key: lm_troux_uid
+          Value: 123
 
 Outputs:
   SecurityGroupId:

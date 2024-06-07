@@ -1,8 +1,7 @@
 # README
 
-1. Crear bucket de s3, para lanzar cargar la carpeta
-2. Lanzar comando de creacion stack master
-3. Subir documento HTML
-4. Cargar datos a la tabla de dynamo
-
-1. crear distribuccion para el api gateway, crear el validador en api de headers, Añadir Tags (“lm_troux_uid=123”)
+1. Crear bucket de s3. Name: "cloudformation-liberty"
+1. Crear bucket de s3. Name: "functions-liberty", cargar funciones .zip
+2. Lanzar comando de creacion stack master, apuntando al master.yml
+3. Subir documento HTML al bucket s3. Default: "s3-demo-dev-liberty"
+4. Cargar items a la tabla de dynamo. Default: "dev-inventory-liberty"
