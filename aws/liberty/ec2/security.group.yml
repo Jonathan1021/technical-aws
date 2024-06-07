@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Create S3 Buckets to project'
+Description: 'Create EC2 Resource to project'
 
 Parameters:
   CostCenter:
