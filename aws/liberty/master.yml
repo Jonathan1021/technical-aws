@@ -96,6 +96,9 @@ Resources:
         Stage: !Ref Stage
         MyApi: !GetAtt ApiGatewayStack.Outputs.MyApi
       TimeoutInMinutes: '10'
+    DependsOn: 
+      - LambdaStack
+      - ApiGatewayStack
 
   CloudFrontStack:
     Type: 'AWS::CloudFormation::Stack'
