@@ -77,19 +77,29 @@ Outputs:
   ApiDeploymentId:
     Description: The deployment ID of the API Gateway
     Value: !Ref Deployment
+    Export:
+      Name: !Sub "ApiDeploymentId-${Stage}"
 
   ApiKeyId:
     Description: The API Key ID
     Value: !Ref MyApiKey
+    Export:
+      Name: !Sub "ApiKeyId-${Stage}"
 
   UsagePlanId:
     Description: The Usage Plan ID
     Value: !Ref MyUsagePlan
+    Export:
+      Name: !Sub "UsagePlanId-${Stage}"
 
   UsagePlanKeyId:
     Description: The Usage Plan Key ID
     Value: !Ref MyUsagePlanApiKey
+    Export:
+      Name: !Sub "UsagePlanKeyId-${Stage}"
 
   ApiEndpoint:
     Description: The endpoint of the API
     Value: !Sub https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+    Export:
+      Name: !Sub "ApiEndpoint-${Stage}"

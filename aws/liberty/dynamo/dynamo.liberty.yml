@@ -44,10 +44,10 @@ Outputs:
     Description: "Name of the Table DynamoDBTable"
     Value: !Ref DynamoTable
     Export:
-      Name: "DynamoTableName"
+      Name: !Sub "DynamoTableName-${Stage}"
 
   DynamoDBTableArn:
     Description: "Arn of the Table DynamoDBTable"
     Value: !GetAtt DynamoTable.Arn
     Export:
-      Name: DynamoDBTableArn
+      Name: !Sub DynamoDBTableArn-${Stage}

@@ -149,15 +149,23 @@ Outputs:
   CloudFrontDistributionApiId:
     Description: ID de la distribución de CloudFront API
     Value: !Ref CloudFrontDistributionApi
+    Export:
+      Name: !Sub "CloudFrontDistributionApiId-${Stage}"
 
   CloudFrontDomainNameApi:
     Description: Dominio de CloudFront API
     Value: !GetAtt CloudFrontDistributionApi.DomainName
+    Export:
+      Name: !Sub "CloudFrontDomainNameApi-${Stage}"
 
   CloudFrontDistributionS3Id:
     Description: The ID of the CloudFront distribution
     Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub "CloudFrontDistributionS3Id-${Stage}"
 
   CloudFrontDomainNameS3:
     Description: The domain name of the CloudFront distribution
     Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub "CloudFrontDomainNameS3-${Stage}"
