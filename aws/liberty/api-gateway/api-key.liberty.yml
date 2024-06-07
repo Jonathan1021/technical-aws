@@ -43,7 +43,6 @@ Resources:
           Value: !Ref Stage
         - Key: lm_troux_uid
           Value: 123
-    DependsOn: Deployment
 
   MyUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
