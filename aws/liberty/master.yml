@@ -40,6 +40,8 @@ Resources:
         Stage: !Ref Stage
         VpcId: !GetAtt VPCStack.Outputs.VpcId
       TimeoutInMinutes: '10'
+    DependsOn: 
+      - VPCStack
 
   ApiGatewayStack:
     Type: 'AWS::CloudFormation::Stack'
