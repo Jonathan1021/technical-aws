@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying.... Release Branding 2'
+                echo 'Deploying.... Release Branding'
             }
         }
     }
