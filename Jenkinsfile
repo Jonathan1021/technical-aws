@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    when {
+        branch 'master|main|release/*|feature/*'
+    }
     stages {
         stage('Build') {
             steps {
