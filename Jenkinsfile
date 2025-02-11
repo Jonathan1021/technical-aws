@@ -11,7 +11,7 @@ pipeline {
                 [ key: 'clone_url', value: '$.repository.clone_url' ]
             ],
             causeString: '$committer_name pushed to $clone_url referencing $commit',
-            token: 'abc123',
+            token: 'technical-aws',
             printContributedVariables: true,
             printPostContent: true
         )
