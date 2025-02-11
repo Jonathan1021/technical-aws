@@ -19,8 +19,7 @@ node {
       
       printContributedVariables: true,
       printPostContent: true,
-      regexpFilterText: '$ref',
-      regexpFilterExpression: 'refs/heads/*'
+      regexpFilterText: '$ref'
     ]
   ])
  ])
