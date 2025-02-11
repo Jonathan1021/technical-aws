@@ -106,19 +106,19 @@ pipeline {
 
                 if (env.GIT_BRANCH == 'origin/develop') {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-                    def t = "v${year}.${month}.${day}-beta.${hour}${minute}"
+                    TAG = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
                         git config --global user.email "${env.committer_email}"
                         git config --global user.name "${env.committer_name}"
-                        git tag ${t}
+                        git tag $TAG
                     """
 
-                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git $t')
+                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git $TAG')
                     
                     // Imprimir el nombre del tag
-                    echo "Created tag: ${t}"
+                    echo "Created tag: ${TAG}"
                 } else {
                     echo "Not on 'develop' branch. Skipping tag creation."
                 }
