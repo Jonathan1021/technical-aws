@@ -19,7 +19,7 @@ pipeline {
             regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\\/.*|feature\\/.*)|tags/v.*)$'
         )
     }
-    
+
     stages {
         stage('Build') {
             steps {
@@ -79,5 +79,36 @@ pipeline {
                 }
             }
         }
+    }
+
+    post {
+        success {
+            script {
+                // Solo crear el tag si la ejecución es exitosa y estamos en la rama 'develop'
+                if (env.GIT_BRANCH == 'origin/develop') {
+                    // Obtener la fecha y hora actual
+                    def currentDate = new Date()
+                    def year = currentDate.format('yy')
+                    def month = currentDate.format('MM')
+                    def day = currentDate.format('dd')
+                    def hour = currentDate.format('HH')
+                    def minute = currentDate.format('mm')
+
+                    // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
+                    def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
+
+                    // Crear el tag en Git
+                    sh "git tag ${tag}"
+
+                    // Push del tag al repositorio
+                    sh "git push origin ${tag}"
+
+                    // Imprimir el nombre del tag
+                    echo "Created tag: ${tag}"
+                } else {
+                    echo "Not on 'develop' branch. Skipping tag creation."
+                }
+            }
+        }    
     }
 }
