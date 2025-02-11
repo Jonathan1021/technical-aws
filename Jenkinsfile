@@ -30,8 +30,14 @@ pipeline {
             steps {
                 deleteDir()
                 sh '''
-                echo git clone $clone_url
-                echo git checkout $commit
+                echo committer_name: $committer_name
+                echo committer_email: $committer_email
+                echo ref: $ref
+                echo tag: $tag
+                echo commit: $commit
+                echo repo_slug: $repo_slug
+                echo project_key: $project_key
+                echo clone_url: $clone_url
                 '''
             }
         }
