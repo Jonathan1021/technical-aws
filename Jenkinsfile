@@ -18,10 +18,7 @@ node {
     token: 'abc123',
     
     printContributedVariables: true,
-    printPostContent: true,
-    
-    regexpFilterText: '$ref',
-    regexpFilterExpression: 'refs/heads/*'
+    printPostContent: true
    ]
   ])
  ])
