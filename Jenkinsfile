@@ -19,11 +19,7 @@ pipeline {
             regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\\/.*|feature\\/.*)|tags/v.*)$'
         )
     }
-
-    environment {
-        WORKSPACE = "${env.BUILD_URL}/{env.ref}"
-    }
-
+    
     stages {
         stage('Build') {
             steps {
