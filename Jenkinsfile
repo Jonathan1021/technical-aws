@@ -12,8 +12,8 @@ pipeline {
             ],
             causeString: '$committer_name pushed to $clone_url referencing $commit',
             token: 'technical-aws',
-            printContributedVariables: true,
-            printPostContent: true
+            printContributedVariables: false,
+            printPostContent: false
         )
     }
 
