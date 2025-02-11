@@ -61,7 +61,7 @@ pipeline {
 
                         See job here: ${env.BUILD_URL}
 
-                        See log here: ${env.BUILD_URL}/consoleText
+                        See log here: ${env.BUILD_URL}consoleText
                         """
                     } else {
                         subject = "Failed to release in ${env.repo_name}"
