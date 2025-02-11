@@ -17,10 +17,11 @@ pipeline {
         )
     }
 
+    environment {
+        WORKSPACE = "${env.BUILD_URL}/{env.ref}"
+    }
+
     stages {
-        enviroment {
-            WORKSPACE = "${env.BUILD_URL}/{env.ref}"
-        }
         stage('Build') {
             steps {
                 script {
