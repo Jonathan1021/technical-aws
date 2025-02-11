@@ -96,7 +96,7 @@ pipeline {
     post {
         success {
             script {
-                withCredentials([string(credentialsId: 'github-token-id', variable: 'GITHUB_TOKEN')]) { 
+                withCredentials([string(credentialsId: 'token-jenkins', variable: 'GITHUB_TOKEN')]) { 
                     def currentDate = new Date()
                     def year = currentDate.format('yy')
                     def month = currentDate.format('MM')
