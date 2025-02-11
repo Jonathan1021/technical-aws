@@ -23,6 +23,7 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('token-jenkins')
+        TAG = "v1.0.0"
     }
 
     stages {
@@ -105,16 +106,16 @@ pipeline {
 
                 if (env.GIT_BRANCH == 'origin/develop') {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-                    def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
+                    env.TAG = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
                         git config --global user.email "${env.committer_email}"
                         git config --global user.name "${env.committer_name}"
-                        git tag ${tag} 
+                        git tag ${env.TAG}
                     """
 
-                    sh('git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git $tag')
+                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git $TAG')
                     
                     // Imprimir el nombre del tag
                     echo "Created tag: ${tag}"
