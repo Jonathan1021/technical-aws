@@ -14,6 +14,9 @@ pipeline {
             token: 'technical-aws',
             printContributedVariables: false,
             printPostContent: false
+
+            regexpFilterText: '$ref',
+            regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\/.*|feature\/.*)|tags/v.*)$'
         )
     }
 
