@@ -109,7 +109,7 @@ pipeline {
                         
                     """
 
-                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git ${TAG}')
+                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git v25.02.11-beta.1741')
 
                     // sh('git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${env.TAG}')
                     
