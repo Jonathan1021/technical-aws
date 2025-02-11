@@ -16,17 +16,12 @@ pipeline {
             printPostContent: true
         )
     }
+
     stages {
-        stage('Prepare') {
+        stage('Git Checkout') {
             steps {
                 deleteDir()
-                script {
-                    sh '''
-                    echo git clone $clone_url
-                    echo git checkout $commit
-                    sleep 1
-                    '''
-                }
+                checkout scm
             }
         }
 
