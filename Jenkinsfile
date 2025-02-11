@@ -29,9 +29,8 @@ node {
  stage("Prepare") {
   deleteDir()
   sh '''
-  echo git clone $clone_url
-  echo git checkout $commit
-  sleep 1
+    echo git clone $clone_url
+    echo git checkout $commit
   '''
  }
 
