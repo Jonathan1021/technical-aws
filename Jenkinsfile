@@ -103,10 +103,10 @@ pipeline {
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
-                        git config --global user.email "{env.committer_email}"
-                        git config --global user.name "{env.committer_name}"
+                        git config --global user.email "${env.committer_email}"
+                        git config --global user.name "${env.committer_name}"
                         git tag ${tag}
-                        git push https://${env.GITHUB_TOKEN}@github.com/{env.repo_name_full}.git ${tag}
+                        git push https://${env.GITHUB_TOKEN}@github.com/${env.repo_name_full}.git ${tag}
                     """
 
                     // Imprimir el nombre del tag
