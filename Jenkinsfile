@@ -15,7 +15,7 @@ node {
      
     causeString: '$committer_name pushed tag $tag to $clone_url referencing $commit',
     
-    token: 'abc123
+    token: 'abc123'
     
     printContributedVariables: true,
     printPostContent: true,
