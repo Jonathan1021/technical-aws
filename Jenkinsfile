@@ -20,6 +20,10 @@ pipeline {
         )
     }
 
+    enviroment {
+        GITHUB_TOKEN = credentials('token-jenkins')
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -86,7 +90,6 @@ pipeline {
             script {
                 // Solo crear el tag si la ejecución es exitosa y estamos en la rama 'develop'
                 if (env.GIT_BRANCH == 'origin/develop') {
-                    // Obtener la fecha y hora actual
                     def currentDate = new Date()
                     def year = currentDate.format('yy')
                     def month = currentDate.format('MM')
@@ -97,11 +100,13 @@ pipeline {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
                     def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
-                    // Crear el tag en Git
-                    sh "git tag ${tag}"
-
-                    // Push del tag al repositorio
-                    sh "git push origin ${tag}"
+                    // Usar el token para autenticar con GitHub y crear el tag
+                    sh """
+                        git config --global user.email "your-email@example.com"
+                        git config --global user.name "your-username"
+                        git tag ${tag}
+                        git push https://${env.GITHUB_TOKEN}@github.com/your-username/your-repo.git ${tag}
+                    """
 
                     // Imprimir el nombre del tag
                     echo "Created tag: ${tag}"
