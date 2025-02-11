@@ -115,10 +115,10 @@ pipeline {
                         git tag ${t}
                     """
 
-                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git ${t}')
+                    sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git $t')
                     
                     // Imprimir el nombre del tag
-                    echo "Created tag: ${tag}"
+                    echo "Created tag: ${t}"
                 } else {
                     echo "Not on 'develop' branch. Skipping tag creation."
                 }
