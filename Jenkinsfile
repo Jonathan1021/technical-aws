@@ -118,7 +118,7 @@ pipeline {
                     sh('git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${env.TAG}')
                     
                     // Imprimir el nombre del tag
-                    echo "Created tag: ${tag}"
+                    echo "Created tag: ${env.TAG}"
                 } else {
                     echo "Not on 'develop' branch. Skipping tag creation."
                 }
