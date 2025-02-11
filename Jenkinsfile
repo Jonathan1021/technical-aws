@@ -108,7 +108,7 @@ pipeline {
                         git tag ${tag}
                     """
 
-                    sh('git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}')
+                    sh('git push https://$GITHUB_TOKEN@github.com/$repo_name_full.git $tag')
 
                     // Imprimir el nombre del tag
                     echo "Created tag: ${tag}"
