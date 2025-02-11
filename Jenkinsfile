@@ -30,6 +30,9 @@ pipeline {
                 script {
                     sh '''
                     echo Hola Mundo release 3
+                    currentBuild.displayName = "Build-${BUILD_NUMBER}-${BRANCH_NAME}-${GIT_COMMIT}"
+                    echo "Build name set to: ${currentBuild.displayName}"
+
                     '''
                 }
             }
