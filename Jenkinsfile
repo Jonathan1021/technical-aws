@@ -29,7 +29,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    printenv
+                    echo Hola Mundo
                     '''
                 }
             }
