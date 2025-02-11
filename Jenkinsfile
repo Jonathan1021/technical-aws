@@ -8,7 +8,8 @@ pipeline {
                 [ key: 'ref', value: '$.ref' ],
                 [ key: 'commit', value: '$.head_commit.id' ],
                 [ key: 'repo_name', value: '$.repository.name' ],
-                [ key: 'clone_url', value: '$.repository.clone_url' ]
+                [ key: 'clone_url', value: '$.repository.clone_url' ],
+                [ key: 'repo_name_full', value: '$.repository.full_name' ],
             ],
             causeString: '$committer_name pushed to $clone_url referencing $commit',
             token: 'technical-aws',
@@ -20,7 +21,7 @@ pipeline {
         )
     }
 
-    enviroment {
+    environment {
         GITHUB_TOKEN = credentials('token-jenkins')
     }
 
@@ -102,10 +103,10 @@ pipeline {
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
-                        git config --global user.email "your-email@example.com"
-                        git config --global user.name "your-username"
+                        git config --global user.email "{env.committer_email}"
+                        git config --global user.name "{env.committer_name}"
                         git tag ${tag}
-                        git push https://${env.GITHUB_TOKEN}@github.com/your-username/your-repo.git ${tag}
+                        git push https://${env.GITHUB_TOKEN}@github.com/{env.repo_name_full}.git ${tag}
                     """
 
                     // Imprimir el nombre del tag
