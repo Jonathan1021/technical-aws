@@ -101,11 +101,10 @@ pipeline {
                 def month = currentDate.format('MM')
                 def day = currentDate.format('dd')
                 def hour = currentDate.format('HH')
-                def minute = currentDate.format('mm')
 
                 if (env.GIT_BRANCH == 'origin/develop') {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-                    def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
+                    def tag = "v${year}.${month}.${day}-beta.$BUILD_ID"
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
