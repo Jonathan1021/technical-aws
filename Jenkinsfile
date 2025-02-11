@@ -119,6 +119,8 @@ pipeline {
                     
                     // Imprimir el nombre del tag
                     echo "Created tag: ${TAG}"
+
+                    
                 } else {
                     echo "Not on 'develop' branch. Skipping tag creation."
                 }
