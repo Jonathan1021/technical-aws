@@ -15,7 +15,7 @@ node {
      
     causeString: '$committer_name pushed tag $tag to $clone_url referencing $commit',
     
-    token: 'abc123'
+    token: 'abc123',
     
     printContributedVariables: true,
     printPostContent: true,
@@ -29,8 +29,9 @@ node {
  stage("Prepare") {
   deleteDir()
   sh '''
-    echo git clone $clone_url
-    echo git checkout $commit 
+  echo git clone $clone_url
+  echo git checkout $commit
+  sleep 1
   '''
  }
 
