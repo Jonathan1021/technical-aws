@@ -106,7 +106,7 @@ pipeline {
 
                 if (env.GIT_BRANCH == 'origin/develop') {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-                    env.TAG = "v${year}.${month}.${day}-beta.${hour}${minute}"
+                    TAG = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
