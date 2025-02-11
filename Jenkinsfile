@@ -21,9 +21,9 @@ pipeline {
         )
     }
 
-    environment {
-        GITHUB_TOKEN = credentials('token-jenkins')
-    }
+    // environment {
+    //     GITHUB_TOKEN = credentials('token-jenkins')
+    // }
 
     stages {
         stage('Git checkout') {
@@ -96,32 +96,33 @@ pipeline {
     post {
         success {
             script {
-                def currentDate = new Date()
-                def year = currentDate.format('yy')
-                def month = currentDate.format('MM')
-                def day = currentDate.format('dd')
-                def hour = currentDate.format('HH')
-                def minute = currentDate.format('mm')
+                withCredentials([string(credentialsId: 'github-token-id', variable: 'GITHUB_TOKEN')]) { 
+                    def currentDate = new Date()
+                    def year = currentDate.format('yy')
+                    def month = currentDate.format('MM')
+                    def day = currentDate.format('dd')
+                    def hour = currentDate.format('HH')
+                    def minute = currentDate.format('mm')
 
-                if (env.GIT_BRANCH == 'origin/develop') {
-                    // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-                    def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
+                    if (env.GIT_BRANCH == 'origin/develop') {
+                        // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
+                        def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
-                    // Usar el token para autenticar con GitHub y crear el tag
-                    sh """
-                        git checkout origin/develop
-                        git config --global user.email "${env.committer_email}"
-                        git config --global user.name "${env.committer_name}"
-                        git tag ${tag}
-                        git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git ${tag}'
-                    """
+                        // Usar el token para autenticar con GitHub y crear el tag
+                        sh """
+                            git config --global user.email "${env.committer_email}"
+                            git config --global user.name "${env.committer_name}"
+                            git tag ${tag}
+                            git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git ${tag}
+                        """
 
-                    // sh('git push https://$GITHUB_TOKEN@github.com/$repo_name_full.git $tag')
+                        // sh('git push https://$GITHUB_TOKEN@github.com/$repo_name_full.git $tag')
 
-                    // Imprimir el nombre del tag
-                    echo "Created tag: ${tag}"
-                } else {
-                    echo "Not on 'develop' branch. Skipping tag creation."
+                        // Imprimir el nombre del tag
+                        echo "Created tag: ${tag}"
+                    } else {
+                        echo "Not on 'develop' branch. Skipping tag creation."
+                    }
                 }
             }
         }    
