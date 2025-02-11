@@ -3,17 +3,16 @@ node {
   pipelineTriggers([
     [$class: 'GenericTrigger',
       genericVariables: [
-      [ key: 'committer_name', value: '$.actor.displayName' ],
-      [ key: 'committer_email', value: '$.actor.emailAddress' ],
-      [ key: 'ref', value: '$.changes[0].refId'],
-      [ key: 'tag', value: '$.changes[0].refId', regexpFilter: 'refs/tags/'],
-      [ key: 'commit', value: '$.changes[0].toHash' ],
-      [ key: 'repo_slug', value: '$.repository.slug' ],
-      [ key: 'project_key', value: '$.repository.project.key' ],
-      [ key: 'clone_url', value: '$.repository.links.clone[0].href' ]
+      [ key: 'committer_name', value: '$.head_commit.author.name' ],
+      [ key: 'committer_email', value: '$.head_commit.author.email' ],
+      [ key: 'ref', value: '$.ref'],
+      // [ key: 'tag', value: '$.changes[0].refId', regexpFilter: 'refs/tags/'],
+      [ key: 'commit', value: '$.head_commit.id' ],
+      [ key: 'repo_name', value: '$.repository.name' ],
+      [ key: 'clone_url', value: '$.repository.clone_url' ]
       ],
       
-      causeString: '$committer_name pushed tag $tag to $clone_url referencing $commit',
+      causeString: '$committer_name pushed tag  to $clone_url referencing $commit',
       
       token: 'abc123',
     ]
@@ -31,8 +30,8 @@ node {
 
  stage("Build") {
   sh '''
-  echo Validate that artifact version is $tag
-  echo Or, set artifact version to $tag, without committing it or pushing!
+  echo Validate that artifact version is 
+  echo Or, set artifact version to , without committing it or pushing!
   echo ./gradlew build
   sleep 2
   '''
@@ -49,24 +48,24 @@ node {
    def subject = ""
    def bodyText = ""
    if (currentBuild.currentResult == 'SUCCESS') {
-   subject = "Released $tag in $repo_slug"
+   subject = "Released  in $repo_name"
    bodyText = """
     Hi there!!
     
-    You pushed $tag in $clone_url and it is now released.
+    You pushed in $clone_url and it is now released.
 
-    Version $tag was built from $commit
+    Version  was built from $commit
     
     See job here: $BUILD_URL
 
     See log here: $BUILD_URL/consoleText
     """
    } else {
-   subject = "Failed to release $tag in $repo_slug"
+   subject = "Failed to release  in $repo_name"
    bodyText = """
     Hi there!!
     
-    You pushed $tag in $clone_url and the release failed (${currentBuild.currentResult}).
+    You pushed  in $clone_url and the release failed (${currentBuild.currentResult}).
     
     See job here: $BUILD_URL
 
