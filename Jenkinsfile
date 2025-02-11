@@ -13,7 +13,7 @@ pipeline {
             causeString: '$committer_name pushed to $clone_url referencing $commit',
             token: 'technical-aws',
             printContributedVariables: false,
-            printPostContent: false
+            printPostContent: false,
 
             regexpFilterText: '$ref',
             regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\/.*|feature\/.*)|tags/v.*)$'
