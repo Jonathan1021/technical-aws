@@ -116,7 +116,7 @@ pipeline {
                     """
 
                     // Imprimir el nombre del tag
-                    echo "Created tag: ${TAG}"
+                    echo "Created tag: ${tag}"
 
 
                 } else {
