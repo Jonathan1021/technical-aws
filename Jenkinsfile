@@ -81,6 +81,8 @@ pipeline {
                         Hi there!!
                         
                         You pushed $tag in $clone_url and the release failed (${currentBuild.currentResult}).
+
+                        Test 1
                         
                         See job here: $BUILD_URL
 
