@@ -22,10 +22,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    echo Validate that artifact version is
-                    echo Or, set artifact version to, without committing it or pushing!
-                    echo ./gradlew build
-                    sleep 2
+                    printenv
                     '''
                 }
             }
