@@ -81,7 +81,7 @@ pipeline {
 
                         See job here: ${env.BUILD_URL}
 
-                        See log here: ${env.BUILD_URL}/consoleText
+                        See log here: ${env.BUILD_URL}console
                         """
                     }
                     echo "Sending email with subject '${subject}' and content:\n${bodyText}"
