@@ -29,7 +29,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    echo Hola Mundo release
+                    echo Hola Mundo release 2
                     '''
                 }
             }
