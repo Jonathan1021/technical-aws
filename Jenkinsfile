@@ -43,8 +43,8 @@ node {
 
  stage("Upload") {
   sh '''
-  echo Uploading...
-  sleep 1
+    echo Uploading...
+    sleep 1
   '''
  }
 
