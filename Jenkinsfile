@@ -106,13 +106,13 @@ pipeline {
 
                 if (env.GIT_BRANCH == 'origin/develop') {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-                    env.TAG = "v${year}.${month}.${day}-beta.${hour}${minute}"
+                    TAG = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
                     // Usar el token para autenticar con GitHub y crear el tag
                     sh """
                         git config --global user.email "${env.committer_email}"
                         git config --global user.name "${env.committer_name}"
-                        git tag ${env.TAG}
+                        git tag ${TAG}
                     """
 
                     sh('git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${TAG}')
