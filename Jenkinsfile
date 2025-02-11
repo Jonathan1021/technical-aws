@@ -59,7 +59,7 @@ pipeline {
 
         stage("Email") {
             steps {
-                step {
+                script {
                     def subject = ""
                     def bodyText = ""
                     if (currentBuild.currentResult == 'SUCCESS') {
