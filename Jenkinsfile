@@ -30,7 +30,7 @@ node {
   deleteDir()
   sh '''
     echo git clone $clone_url
-    echo git checkout $commit
+    echo git checkout $commit 
   '''
  }
 
