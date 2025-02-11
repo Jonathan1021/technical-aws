@@ -89,15 +89,14 @@ pipeline {
     post {
         success {
             script {
-                // Solo crear el tag si la ejecución es exitosa y estamos en la rama 'develop'
-                if (env.GIT_BRANCH == 'origin/develop') {
-                    def currentDate = new Date()
-                    def year = currentDate.format('yy')
-                    def month = currentDate.format('MM')
-                    def day = currentDate.format('dd')
-                    def hour = currentDate.format('HH')
-                    def minute = currentDate.format('mm')
+                def currentDate = new Date()
+                def year = currentDate.format('yy')
+                def month = currentDate.format('MM')
+                def day = currentDate.format('dd')
+                def hour = currentDate.format('HH')
+                def minute = currentDate.format('mm')
 
+                if (env.GIT_BRANCH == 'origin/develop') {
                     // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
                     def tag = "v${year}.${month}.${day}-beta.${hour}${minute}"
 
@@ -108,7 +107,7 @@ pipeline {
                         git tag ${tag}
                     """
 
-                    sh('git push https://$GITHUB_TOKEN@github.com/$repo_name_full.git ${tag}')
+                    sh('git push https://$GITHUB_TOKEN@github.com/$repo_name_full.git $tag')
 
                     // Imprimir el nombre del tag
                     echo "Created tag: ${tag}"
