@@ -59,46 +59,5 @@ pipeline {
                 '''
             }
         }
-
-        stage("Email") {
-            steps {
-                script {
-                    def subject = ""
-                    def bodyText = ""
-                    if (currentBuild.currentResult == 'SUCCESS') {
-                    subject = "Released $tag in $repo_slug"
-                    bodyText = """
-                        Hi there!!
-                        
-                        You pushed $tag in $clone_url and it is now released.
-
-                        Version $tag was built from $commit
-                        
-                        See job here: $BUILD_URL
-
-                        See log here: $BUILD_URL/consoleText
-                        """
-                    } else {
-                    subject = "Failed to release $tag in $repo_slug"
-                    bodyText = """
-                        Hi there!!
-                        
-                        You pushed $tag in $clone_url and the release failed (${currentBuild.currentResult}).
-
-                        Test 1
-                        
-                        See job here: $BUILD_URL
-
-                        See log here: $BUILD_URL/consoleText
-                        """
-                    }
-                    echo "Sending email with subject '$subject' and content:\n$bodyText"
-                    //emailext subject: subject
-                    // to: "$committer_email",
-                    // from: 'jenkins@company.com',
-                    // body: bodyText
-                }
-            }
-        }
     }
 }
