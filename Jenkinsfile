@@ -112,7 +112,7 @@ pipeline {
                     sh """
                         git config --global user.email "${env.committer_email}"
                         git config --global user.name "${env.committer_name}"
-                        git tag $TAG
+                        git tag {env.TAG}
                     """
 
                     sh('git push https://$GITHUB_TOKEN@github.com/${repo_name_full}.git $TAG')
