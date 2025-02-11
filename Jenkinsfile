@@ -6,7 +6,7 @@ pipeline {
                 [ key: 'committer_name', value: '$.actor.displayName' ],
                 [ key: 'committer_email', value: '$.actor.emailAddress' ],
                 [ key: 'ref', value: '$.changes[0].refId'],
-                [ key: 'tag', value: '$.changes[0].refId', regexpFilter: 'refs/tags/'],
+                [ key: 'tag', value: '$.changes[0].refId', regexpFilter: 'refs/tags/', defaultValue: 'v1.0'],
                 [ key: 'commit', value: '$.changes[0].toHash' ],
                 [ key: 'repo_slug', value: '$.repository.slug' ],
                 [ key: 'project_key', value: '$.repository.project.key' ],
@@ -32,7 +32,6 @@ pipeline {
                 sh '''
                 echo git clone $clone_url
                 echo git checkout $commit
-                sleep 1
                 '''
             }
         }
@@ -43,7 +42,6 @@ pipeline {
                 echo Validate that artifact version is $tag
                 echo Or, set artifact version to $tag, without committing it or pushing!
                 echo ./gradlew build
-                sleep 2
                 '''
             }
         }
@@ -52,7 +50,6 @@ pipeline {
             steps {
                 sh '''
                 echo Uploading...
-                sleep 1
                 '''
             }
         }
