@@ -21,7 +21,7 @@ node {
     printPostContent: true,
     
     regexpFilterText: '$ref',
-    regexpFilterExpression: '^refs/tags/.*'
+    regexpFilterExpression: 'refs/heads/*'
    ]
   ])
  ])
