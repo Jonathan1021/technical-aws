@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'ArtifactoryId', defaultValue: '', description: 'Artifactory ID. Ex: v25.02.12-rc.306')
+        choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], description: 'Stage or Enviroment to deployed. Ex: dev')
+    }
+
+    stages {
+        stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                    echo Deploying...
+                    '''
+                }
+            }
+        }
+
+        stage('Test Integration') {
+            steps {
+                script {
+                    sh '''
+                    echo Test Integration...
+                    '''
+                }
+            }
+        }
+
+        stage('Test Performance') {
+            steps {
+                script {
+                    sh '''
+                    echo Test Performance...
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                notificationSuccess(tag)
+            }
+        }    
+    }
+}
+
+def notificationSuccess() {
+    def subject = ""
+    def bodyText = ""
+    subject = "Released in ${env.repo_name}"
+    bodyText = """
+    Hi there!!
+
+    You pushed in ${env.clone_url} and it is now released.
+
+    Version was built from branch ${env.GIT_BRANCH} in commit ${env.commit}
+
+    See tag created: https://github.com/${env.repo_name_full}/releases/tag/${tag}
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${subject}' and content:\n${bodyText}"
+}
+
+def notificationError() {
+
+}

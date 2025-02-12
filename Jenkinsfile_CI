@@ -23,9 +23,18 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('token-jenkins')
+        STAGE = 'dev'
     }
 
     stages {
+        stage('Set Enviroment') {
+            steps {
+                script {
+                    STAGE = getEnviroment(env.GIT_BRANCH)
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
@@ -62,6 +71,7 @@ pipeline {
             script {
                 def tag = createTag()
                 notificationSuccess(tag)
+                deployArtifactory(tag)
             }
         }    
     }
@@ -88,10 +98,22 @@ def createTag() {
     return tag
 }
 
+def getEnviroment(branchName) {
+    if (branchName == 'origin/develop' || branchName.startsWith('origin/feature/')) {
+        return 'dev'
+    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod') {
+        return 'nonprod'
+    } else if (branchName == 'origin/uat') {
+        return 'uat'
+    } else {
+        return 'prod'
+    }
+}
+
 def getPrefixVersion(branchName) {
     if (branchName == 'origin/develop' || branchName.startsWith('origin/feature/')) {
         return '-beta'
-    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod') {
+    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod' || branchName == 'origin/uat') {
         return '-rc'
     } else {
         return ''
@@ -116,8 +138,13 @@ def notificationSuccess(tag) {
     See log here: ${env.BUILD_URL}consoleText
     """
     echo "Sending email with subject '${subject}' and content:\n${bodyText}"
-    //emailext subject: subject
-    // to: "${env.committer_email}",
-    // from: 'jenkins@company.com',
-    // body: bodyText
+}
+
+def deployArtifactory(artifactoryId) {
+    build job: '${env.JOB_NAME}-deploy',
+        parameters: [
+            string(name: 'ArtifactoryId', value: artifactoryId)
+            choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], value: env.STAGE)
+        ], 
+        cause: 'Deployed by ${env.committer_name} <env.committer_email> in Stage {env.STAGE}. Branch: {env.GIT_BRANCH}, Artifactory: {artifactoryId}'
 }
