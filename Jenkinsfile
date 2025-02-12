@@ -26,13 +26,6 @@ pipeline {
     }
 
     stages {
-        stage('Git checkout') {
-            steps {
-                script {
-                    checkout scm
-                }
-            }
-        }
         stage('Build') {
             steps {
                 script {
