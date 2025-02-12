@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'Email', defaultValue: '', description: 'Email. Ex: example@hdiexample.com.co')
+        string(name: 'ArtifactoryId', defaultValue: '', description: 'Artifactory ID. Ex: v25.02.12-rc.306')
+        choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], description: 'Stage or Enviroment to deployed. Ex: dev')
+    }
+
+    stages {
+        stage('Approver') {
+            when {
+                expression {
+                    return params.Stage == "prod" || params.Stage == "nonprod"
+                }
+            }
+            steps {
+                script {
+                    def userInput = input message: 'Please confirm deployment', 
+                                        ok: "Approve deployment to ${params.Stage}",
+                                        parameters: [
+                                            text(name: 'Comment', defaultValue: '', description: 'Provide additional information')
+                                        ],
+                                        submitterParameter: 'userSubmitter'
+                    sh """
+                    echo Deploying ${params.Stage}...
+                    echo User approved ${userInput.userSubmitter}
+                    """
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh """
+                    echo Deploying ${params.Stage}...
+                    """
+                }
+            }
+        }
+
+        stage('Test Integration') {
+            steps {
+                script {
+                    sh '''
+                    echo Test Integration...
+                    '''
+                }
+            }
+        }
+
+        stage('Test Performance') {
+            steps {
+                script {
+                    sh '''
+                    echo Test Performance...
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                notificationSuccess()
+            }
+        }
+        failure {
+            script {
+                notificationError()
+            }
+        }    
+    }
+}
+
+def notificationSuccess() {
+    def subject = "${Email}"
+    def bodyText = ""
+    subject = "[${params.Stage}] - Released Success in ${env.JOB_NAME} - ${params.ArtifactoryId}"
+    bodyText = """
+    Hi there!!
+
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment.
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${Email}' and content:\n${bodyText}"
+}
+
+def notificationError() {
+    def subject = "${Email}"
+    def bodyText = ""
+    subject = "[${params.Stage}] - Released Error in ${env.JOB_NAME} - ${params.ArtifactoryId}"
+    bodyText = """
+    Hi there!!
+
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment. 
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${Email}' and content:\n${bodyText}"
+}

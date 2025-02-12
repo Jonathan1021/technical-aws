@@ -23,9 +23,19 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('token-jenkins')
+        STAGE = ''
+        TAG = ''
     }
 
     stages {
+        stage('Set Enviroment') {
+            steps {
+                script {
+                    STAGE = getEnviroment(env.GIT_BRANCH)
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
@@ -36,7 +46,7 @@ pipeline {
             }
         }
 
-        stage('Upload') {
+        stage('Test') {
             steps {
                 script {
                     sh '''
@@ -46,41 +56,13 @@ pipeline {
             }
         }
 
-        stage('Notification') {
+        stage('Publish Artifactory') {
             steps {
                 script {
-                    def subject = ""
-                    def bodyText = ""
-                    if (currentBuild.currentResult == 'SUCCESS') {
-                        subject = "Released in ${env.repo_name}"
-                        bodyText = """
-                        Hi there!!
-
-                        You pushed in ${env.clone_url} and it is now released.
-
-                        Version was built from ${env.commit}
-
-                        See job here: ${env.BUILD_URL}
-
-                        See log here: ${env.BUILD_URL}consoleText
-                        """
-                    } else {
-                        subject = "Failed to release in ${env.repo_name} "
-                        bodyText = """
-                        Hi there!!
-
-                        You pushed in ${env.clone_url} and the release failed (${currentBuild.currentResult}).
-
-                        See job here: ${env.BUILD_URL}
-
-                        See log here: ${env.BUILD_URL}console
-                        """
-                    }
-                    echo "Sending email with subject '${subject}' and content:\n${bodyText}"
-                    //emailext subject: subject
-                    // to: "${env.committer_email}",
-                    // from: 'jenkins@company.com',
-                    // body: bodyText
+                    sh '''
+                    echo Publish...
+                    '''
+                    TAG = createTag()
                 }
             }
         }
@@ -89,7 +71,8 @@ pipeline {
     post {
         success {
             script {
-                createTag()
+                notificationSuccess(TAG)
+                deployArtifactory(TAG)
             }
         }    
     }
@@ -102,13 +85,6 @@ def createTag() {
     def day = currentDate.format('dd')
     def hour = currentDate.format('HH')
 
-    def tagSuffixMap = [
-        'origin/develop': '-beta',     
-        'origin/feature/*': '-beta', 
-        'origin/release/*': '-rc',
-        'default': ''
-    ]
-
     def prefix = getPrefixVersion(env.GIT_BRANCH)
 
     def tag = "v${year}.${month}.${day}${prefix}.$BUILD_ID"
@@ -120,14 +96,58 @@ def createTag() {
         git tag ${tag}
         git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}
     """
+    return tag
+}
+
+def getEnviroment(branchName) {
+    if (branchName == 'origin/develop' || branchName.startsWith('origin/feature/')) {
+        return 'dev'
+    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod') {
+        return 'nonprod'
+    } else if (branchName == 'origin/uat') {
+        return 'uat'
+    } else {
+        return 'prod'
+    }
 }
 
 def getPrefixVersion(branchName) {
-    if (branchName.startsWith('origin/develop') || branchName.startsWith('origin/feature/')) {
+    if (branchName == 'origin/develop' || branchName.startsWith('origin/feature/')) {
         return '-beta'
-    } else if (branchName.startsWith('origin/release/')) {
+    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod' || branchName == 'origin/uat') {
         return '-rc'
     } else {
         return ''
     }
+}
+
+def notificationSuccess(tag) {
+    def subject = ""
+    def bodyText = ""
+    subject = "Released in ${env.repo_name}"
+    bodyText = """
+    Hi there!!
+
+    You pushed in ${env.clone_url} and it is now released.
+
+    Version was built from branch ${env.GIT_BRANCH} in commit ${env.commit}
+
+    See tag created: https://github.com/${env.repo_name_full}/releases/tag/${tag}
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${subject}' and content:\n${bodyText}"
+}
+
+def deployArtifactory(artifactoryId) {
+    build job: "${env.JOB_NAME}-deploy",
+        parameters: [   
+            [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "${artifactoryId}" ],
+            [$class: 'StringParameterValue', name: 'Stage', value: STAGE],
+            [$class: 'StringParameterValue', name: 'Email', value: "${env.committer_email}"]
+        ],
+        propagate: false,
+        wait: false
 }
