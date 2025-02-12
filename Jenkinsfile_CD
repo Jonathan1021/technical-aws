@@ -8,10 +8,18 @@ pipeline {
     }
 
     environment {
-        USER_INPUT = [Programmed: false, Schedule: '', Comment: '', userSubmitter: '']
+        USER_INPUT = null
     }
 
     stages {
+        stage('Configuration') {
+            steps {
+                script {
+                    USER_INPUT = [Programmed: false, Schedule: '', Comment: '', userSubmitter: '']
+                }
+            }
+        }
+
         stage('Approver') {
             when {
                 expression {
