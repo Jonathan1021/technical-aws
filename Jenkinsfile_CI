@@ -149,7 +149,7 @@ def deployArtifactory(artifactoryId) {
         // ], 
         parameters: [   
             [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "v25.02.12-beta.316" ],
-            [$class: 'ExtendedChoiceParameterValue', name: 'Stage', value: "dev"]
+            [$class: 'extendedChoice', name: 'Stage', value: "dev"]
         ]
         cause: "Deployed by ${env.committer_name} <${env.committer_email}> in Stage ${env.STAGE}. Branch: ${env.GIT_BRANCH}, Artifactory: ${artifactoryId}"
 }
