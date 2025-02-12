@@ -24,6 +24,7 @@ pipeline {
     environment {
         GITHUB_TOKEN = credentials('token-jenkins')
         STAGE = 'dev'
+        TAG = ''
     }
 
     stages {
@@ -61,6 +62,7 @@ pipeline {
                     sh '''
                     echo Publish...
                     '''
+                    env.TAG = createTag()
                 }
             }
         }
@@ -69,9 +71,8 @@ pipeline {
     post {
         success {
             script {
-                def tag = createTag()
-                notificationSuccess(tag)
-                deployArtifactory(tag)
+                notificationSuccess(env.TAG)
+                deployArtifactory(env.TAG)
             }
         }    
     }
