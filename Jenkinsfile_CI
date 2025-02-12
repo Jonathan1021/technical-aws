@@ -146,5 +146,5 @@ def deployArtifactory(artifactoryId) {
             string(name: 'ArtifactoryId', value: artifactoryId),
             choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], value: env.STAGE)
         ], 
-        cause: 'Deployed by ${env.committer_name} <env.committer_email> in Stage {env.STAGE}. Branch: {env.GIT_BRANCH}, Artifactory: {artifactoryId}'
+        cause: "Deployed by ${env.committer_name} <${env.committer_email}> in Stage ${env.STAGE}. Branch: ${env.GIT_BRANCH}, Artifactory: ${artifactoryId}"
 }
