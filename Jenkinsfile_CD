@@ -41,7 +41,7 @@ pipeline {
     post {
         success {
             script {
-                notificationSuccess(tag)
+                // notificationSuccess(tag)
             }
         }    
     }
