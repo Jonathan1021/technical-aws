@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        USER_INPUT = null
+        USER_INPUT = [Programmed: false, Schedule: '', Comment: '', userSubmitter: '']
     }
 
     stages {
@@ -45,7 +45,7 @@ pipeline {
         stage('Schedule') {
             when {
                 expression {
-                    return USER_INPUT != null && USER_INPUT.Programmed == true
+                    return USER_INPUT.Programmed == true
                 }
             }
             steps {
