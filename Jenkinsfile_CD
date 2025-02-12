@@ -11,7 +11,7 @@ pipeline {
         stage('Approver') {
             when {
                 expression {
-                    return params.Stage = "prod" || params.Stage == "nonprod"
+                    params.Stage = "prod" || params.Stage == "nonprod"
                 }
             }
             steps {
