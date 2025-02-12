@@ -146,7 +146,7 @@ def deployArtifactory(artifactoryId) {
         parameters: [   
             [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "${artifactoryId}" ],
             [$class: 'StringParameterValue', name: 'Stage', value: "${env.STAGE}"],
-            [email(name: 'Email', value: "${env.committer_email}")]
+            [$class: 'StringParameterValue', name: 'Email', value: "${env.committer_email}"]
         ],
         propagate: false,
         cause: "Deployed by ${env.committer_name} <${env.committer_email}> in Stage ${env.STAGE}. Branch: ${env.GIT_BRANCH}, Artifactory: ${artifactoryId}"
