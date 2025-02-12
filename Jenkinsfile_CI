@@ -148,5 +148,6 @@ def deployArtifactory(artifactoryId) {
             [$class: 'StringParameterValue', name: 'Stage', value: STAGE],
             [$class: 'StringParameterValue', name: 'Email', value: "${env.committer_email}"]
         ],
-        propagate: false
+        propagate: false,
+        wait: false
 }
