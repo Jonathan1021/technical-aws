@@ -8,11 +8,16 @@ pipeline {
     }
 
     stages {
-        stage('Deploy') {
+        stage('Approver') {
+            when {
+                expression {
+                    return params.Stage = "prod" || params.Stage == "nonprod"
+                }
+            }
             steps {
                 script {
                     sh '''
-                    echo Deploying...
+                    echo Deploying ${params.Stage}...
                     '''
                 }
             }
