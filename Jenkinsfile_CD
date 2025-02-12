@@ -38,13 +38,13 @@ pipeline {
         }
     }
 
-    // post {
-    //     success {
-    //         script {
-    //             // notificationSuccess(tag)
-    //         }
-    //     }    
-    // }
+    post {
+        success {
+            script {
+                notificationSuccess("${params.ArtifactoryId}")
+            }
+        }    
+    }
 }
 
 def notificationSuccess() {
