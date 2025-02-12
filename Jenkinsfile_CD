@@ -7,6 +7,10 @@ pipeline {
         choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], description: 'Stage or Enviroment to deployed. Ex: dev')
     }
 
+    environment {
+        USER_INPUT = null
+    }
+
     stages {
         stage('Approver') {
             when {
@@ -17,7 +21,7 @@ pipeline {
             steps {
                 script {
                     def date = getCurrentDay()
-                    def userInput = input message: 'Please confirm deployment', 
+                    USER_INPUT = input message: 'Please confirm deployment', 
                                         ok: "Approve deployment to ${params.Stage}",
                                         parameters: [
                                             booleanParam(name: 'Programmed', defaultValue: false, description: '(Optional) Do you want to schedule the deployment?'),
@@ -31,8 +35,46 @@ pipeline {
                                         submitterParameter: 'userSubmitter'
                     sh """
                     echo Deploying ${params.Stage}...
-                    echo User approved ${userInput.userSubmitter}
+                    echo User approved ${USER_INPUT.userSubmitter}
                     """
+                }
+            }
+        }
+
+        stage('Schedule') {
+            when {
+                expression {
+                    return USER_INPUT.Programmed == true
+                }
+            }
+            steps {
+                script {
+                    // Get current date and selected time
+                    def currentDateObject = new Date()
+                    def selectedTime = USER_INPUT.Schedule
+
+                    // Create the date format including the current date with the selected time
+                    def dateFormat = new java.text.SimpleDateFormat('dd-MM-yyyy HH:mm')
+                    def selectedDateTime = dateFormat.parse(currentDateObject.format('dd-MM-yyyy') + " " + selectedTime)
+
+                    // Calculate the difference in milliseconds between the selected time and the current time
+                    def timeDifferenceMillis = selectedDateTime.getTime() - currentDateObject.getTime()
+
+                    // If the selected time has already passed, adjust to the same time on the next day
+                    if (timeDifferenceMillis < 0) {
+                        selectedDateTime = dateFormat.parse(currentDateObject.plus(1).format('dd-MM-yyyy') + " " + selectedTime)
+                        timeDifferenceMillis = selectedDateTime.getTime() - currentDateObject.getTime()
+                    }
+
+                    // Calculate the sleep time in seconds
+                    def timeDifferenceSeconds = timeDifferenceMillis / 1000
+
+                    // Print the difference and sleep for the calculated time
+                    echo "Time to wait until the selected time: ${timeDifferenceSeconds} seconds."
+                    echo "Sleeping for ${timeDifferenceSeconds} seconds until ${selectedTime}."
+                    sleep(time: timeDifferenceSeconds, unit: 'SECONDS')
+
+                    echo "Deployment executed at the selected time!"
                 }
             }
         }
