@@ -15,6 +15,7 @@ pipeline {
         stage('Configuration') {
             steps {
                 script {
+                    deleteDir()
                     USER_INPUT = [Programmed: false, Schedule: '', Comment: '', userSubmitter: '']
                 }
             }
