@@ -36,7 +36,7 @@ pipeline {
             }
         }
 
-        stage('Upload') {
+        stage('Test') {
             steps {
                 script {
                     sh '''
@@ -49,38 +49,7 @@ pipeline {
         stage('Email') {
             steps {
                 script {
-                    def subject = ""
-                    def bodyText = ""
-                    if (currentBuild.currentResult == 'SUCCESS') {
-                        subject = "Released in ${env.repo_name}"
-                        bodyText = """
-                        Hi there!!
-
-                        You pushed in ${env.clone_url} and it is now released.
-
-                        Version was built from ${env.commit}
-
-                        See job here: ${env.BUILD_URL}
-
-                        See log here: ${env.BUILD_URL}consoleText
-                        """
-                    } else {
-                        subject = "Failed to release in ${env.repo_name} "
-                        bodyText = """
-                        Hi there!!
-
-                        You pushed in ${env.clone_url} and the release failed (${currentBuild.currentResult}).
-
-                        See job here: ${env.BUILD_URL}
-
-                        See log here: ${env.BUILD_URL}console
-                        """
-                    }
-                    echo "Sending email with subject '${subject}' and content:\n${bodyText}"
-                    //emailext subject: subject
-                    // to: "${env.committer_email}",
-                    // from: 'jenkins@company.com',
-                    // body: bodyText
+                    
                 }
             }
         }
@@ -89,7 +58,8 @@ pipeline {
     post {
         success {
             script {
-                createTag()
+                def tag = createTag()
+                notification(tag)
             }
         }    
     }
@@ -113,6 +83,7 @@ def createTag() {
         git tag ${tag}
         git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}
     """
+    return tag
 }
 
 def getPrefixVersion(branchName) {
@@ -123,4 +94,28 @@ def getPrefixVersion(branchName) {
     } else {
         return ''
     }
+}
+
+def notification(tag) {
+    def subject = ""
+    def bodyText = ""
+    subject = "Released in ${env.repo_name}"
+    bodyText = """
+    Hi there!!
+
+    You pushed in ${env.clone_url} and it is now released.
+
+    Version was built from branch ${env.GIT_BRANCH} in commit ${env.commit}
+
+    See tag created: https://github.com/${env.repo_name_full}}/releases/tag/${tag}
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${subject}' and content:\n${bodyText}"
+    //emailext subject: subject
+    // to: "${env.committer_email}",
+    // from: 'jenkins@company.com',
+    // body: bodyText
 }
