@@ -17,7 +17,7 @@ pipeline {
             printPostContent: false,
 
             regexpFilterText: '$ref',
-            regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\\/.*|feature\\/.*)|tags/v.*)$'
+            regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\\/.*|feature\\/.*))$'
         )
     }
 
@@ -97,7 +97,6 @@ pipeline {
         success {
             script {
                 createTag()
-                
             }
         }    
     }
@@ -110,23 +109,22 @@ def createTag() {
     def day = currentDate.format('dd')
     def hour = currentDate.format('HH')
 
-    if (env.GIT_BRANCH == 'origin/develop') {
-        // Crear el tag con el formato v{year}.{month}.{day}-beta.{hour}{minute}
-        def tag = "v${year}.${month}.${day}-beta.$BUILD_ID"
+    def tagSuffixMap = [
+        'origin/develop': '-beta',     
+        'origin/feature/*': '-beta', 
+        'origin/release/*': '-rc'
+        'default': ''
+    ]
 
-        // Usar el token para autenticar con GitHub y crear el tag
-        sh """
-            git config --global user.email "${env.committer_email}"
-            git config --global user.name "${env.committer_name}"
-            git tag ${tag}
-            git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}
-        """
+    def prefix = tagSuffixMap.get(env.GIT_BRANCH, tagSuffixMap['default'])
 
-        // Imprimir el nombre del tag
-        echo "Created tag: ${tag}"
+    def tag = "v${year}.${month}.${day}${prefix}.$BUILD_ID"
 
-
-    } else {
-        echo "Not on 'develop' branch. Skipping tag creation."
-    }
+    // Usar el token para autenticar con GitHub y crear el tag
+    sh """
+        git config --global user.email "${env.committer_email}"
+        git config --global user.name "${env.committer_name}"
+        git tag ${tag}
+        git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}
+    """
 }
