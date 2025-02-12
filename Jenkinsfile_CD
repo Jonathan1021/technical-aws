@@ -16,9 +16,9 @@ pipeline {
             }
             steps {
                 script {
-                    sh '''
+                    sh """
                     echo Deploying ${params.Stage}...
-                    '''
+                    """
                 }
             }
         }
