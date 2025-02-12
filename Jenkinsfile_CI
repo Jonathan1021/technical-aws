@@ -143,7 +143,7 @@ def notificationSuccess(tag) {
 def deployArtifactory(artifactoryId) {
     build job: '${env.JOB_NAME}-deploy',
         parameters: [
-            string(name: 'ArtifactoryId', value: artifactoryId)
+            string(name: 'ArtifactoryId', value: artifactoryId),
             choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], value: env.STAGE)
         ], 
         cause: 'Deployed by ${env.committer_name} <env.committer_email> in Stage {env.STAGE}. Branch: {env.GIT_BRANCH}, Artifactory: {artifactoryId}'
