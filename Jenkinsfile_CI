@@ -59,7 +59,7 @@ pipeline {
         success {
             script {
                 def tag = createTag()
-                notification(tag)
+                notificationSuccess(tag)
             }
         }    
     }
@@ -96,7 +96,7 @@ def getPrefixVersion(branchName) {
     }
 }
 
-def notification(tag) {
+def notificationSuccess(tag) {
     def subject = ""
     def bodyText = ""
     subject = "Released in ${env.repo_name}"
