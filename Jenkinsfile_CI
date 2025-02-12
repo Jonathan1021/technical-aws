@@ -62,7 +62,7 @@ pipeline {
                     sh '''
                     echo Publish...
                     '''
-                    env.TAG = createTag()
+                    TAG = createTag()
                 }
             }
         }
@@ -71,8 +71,8 @@ pipeline {
     post {
         success {
             script {
-                notificationSuccess(env.TAG)
-                deployArtifactory(env.TAG)
+                notificationSuccess(TAG)
+                deployArtifactory(TAG)
             }
         }    
     }
@@ -148,8 +148,8 @@ def deployArtifactory(artifactoryId) {
         //     choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], value: "${env.STAGE}")
         // ], 
         parameters: [   
-            [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "${artifactoryId}" ],
-            [$class: 'ChoiceParameterValue', name: 'Stage', value: "${env.STAGE}"]
+            [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "v25.02.12-beta.316" ],
+            [$class: 'ExtendedChoiceParameterValue', name: 'Stage', value: "dev"
         ]
         cause: "Deployed by ${env.committer_name} <${env.committer_email}> in Stage ${env.STAGE}. Branch: ${env.GIT_BRANCH}, Artifactory: ${artifactoryId}"
 }
