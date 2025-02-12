@@ -16,6 +16,22 @@ pipeline {
             }
             steps {
                 script {
+                    def userInput = input message: 'Please confirm deployment', 
+                                        parameters: [
+                                            text(name: 'Comment', defaultValue: '', description: 'Provide additional information')
+                                        ],
+                                        submitterParameter: 'userSubmitter'
+                    sh """
+                    echo Deploying ${params.Stage}...
+                    echo User approved ${userInput.userSubmitter}
+                    """
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
                     def userInput = input message: 'Please confirm deployment', parameters: [
                         text(name: 'Comment', defaultValue: '', description: 'Provide additional information')
                     ]
