@@ -145,7 +145,7 @@ def deployArtifactory(artifactoryId) {
     build job: "${env.JOB_NAME}-deploy",
         parameters: [   
             [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "${artifactoryId}" ],
-            [$class: 'StringParameterValue', name: 'Stage', value: ${env.STAGE}"]
+            [$class: 'StringParameterValue', name: 'Stage', value: "${env.STAGE}"]
         ],
         propagate: false,
         cause: "Deployed by ${env.committer_name} <${env.committer_email}> in Stage ${env.STAGE}. Branch: ${env.GIT_BRANCH}, Artifactory: ${artifactoryId}"
