@@ -47,7 +47,7 @@ pipeline {
             }
         }
 
-        stage('Email') {
+        stage('Notification') {
             steps {
                 script {
                     def subject = ""
