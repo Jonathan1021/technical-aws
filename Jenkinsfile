@@ -109,7 +109,7 @@ def createTag() {
         'default': ''
     ]
 
-    def prefix = tagSuffixMap.get(env.GIT_BRANCH, tagSuffixMap['default'])
+    def prefix = getPrefixVersion(env.GIT_BRANCH)
 
     def tag = "v${year}.${month}.${day}${prefix}.$BUILD_ID"
 
@@ -120,4 +120,14 @@ def createTag() {
         git tag ${tag}
         git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}
     """
+}
+
+def getPrefixVersion(branchName) {
+    if (branchName.startsWith('origin/develop') || branchName.startsWith('origin/feature/')) {
+        return '-beta'
+    } else if (branchName.startsWith('origin/release/')) {
+        return '-rc'
+    } else {
+        return ''
+    }
 }
