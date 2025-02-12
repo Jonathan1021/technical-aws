@@ -123,9 +123,9 @@ def createTag() {
 }
 
 def getPrefixVersion(branchName) {
-    if (branchName.startsWith('origin/develop') || branchName.startsWith('origin/feature/')) {
+    if (branchName == 'origin/develop' || branchName.startsWith('origin/feature/')) {
         return '-beta'
-    } else if (branchName.startsWith('origin/release/')) {
+    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod') {
         return '-rc'
     } else {
         return ''
