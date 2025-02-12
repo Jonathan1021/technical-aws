@@ -45,7 +45,7 @@ pipeline {
                                         submitterParameter: 'userSubmitter'
                     sh """
                     echo USER_INPUT: ${USER_INPUT}
-                    echo Deploying ${params.Stage}...
+                    echo Deploying ${params.Stage}..
                     echo User approved ${USER_INPUT.userSubmitter}
                     """
                 }
