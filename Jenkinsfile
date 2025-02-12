@@ -72,7 +72,7 @@ pipeline {
                         See log here: ${env.BUILD_URL}consoleText
                         """
                     } else {
-                        subject = "Failed to release in ${env.repo_name}"
+                        subject = "Failed to release in ${env.repo_name} "
                         bodyText = """
                         Hi there!!
 
