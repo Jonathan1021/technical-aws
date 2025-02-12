@@ -8,7 +8,8 @@ pipeline {
                 [ key: 'ref', value: '$.ref' ],
                 [ key: 'commit', value: '$.head_commit.id' ],
                 [ key: 'repo_name', value: '$.repository.name' ],
-                [ key: 'clone_url', value: '$.repository.clone_url' ]
+                [ key: 'clone_url', value: '$.repository.clone_url' ],
+                [ key: 'repo_name_full', value: '$.repository.full_name' ],
             ],
             causeString: '$committer_name pushed to $clone_url referencing $commit',
             token: 'technical-aws',
@@ -16,13 +17,12 @@ pipeline {
             printPostContent: true,
 
             regexpFilterText: '$ref',
-            regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\\/.*|feature\\/.*)|tags/v.*)$'
+            regexpFilterExpression: '^refs/(heads/(develop|main|master|nonprod|release\\/.*|feature\\/.*))$'
         )
     }
 
     environment {
-        WORKSPACE = "${env.BUILD_URL}/{env.ref}"
-        BUILD_NUMBER = "Build-${BUILD_NUMBER}-${GIT_COMMIT}"
+        GITHUB_TOKEN = credentials('token-jenkins')
     }
 
     stages {
@@ -66,7 +66,7 @@ pipeline {
                         See log here: ${env.BUILD_URL}consoleText
                         """
                     } else {
-                        subject = "Failed to release in ${env.repo_name}"
+                        subject = "Failed to release in ${env.repo_name} "
                         bodyText = """
                         Hi there!!
 
@@ -85,5 +85,50 @@ pipeline {
                 }
             }
         }
+    }
+
+    post {
+        success {
+            script {
+                createTag()
+            }
+        }    
+    }
+}
+
+def createTag() {
+    def currentDate = new Date()
+    def year = currentDate.format('yy')
+    def month = currentDate.format('MM')
+    def day = currentDate.format('dd')
+    def hour = currentDate.format('HH')
+
+    def tagSuffixMap = [
+        'origin/develop': '-beta',     
+        'origin/feature/*': '-beta', 
+        'origin/release/*': '-rc',
+        'default': ''
+    ]
+
+    def prefix = getPrefixVersion(env.GIT_BRANCH)
+
+    def tag = "v${year}.${month}.${day}${prefix}.$BUILD_ID"
+
+    // Usar el token para autenticar con GitHub y crear el tag
+    sh """
+        git config --global user.email "${env.committer_email}"
+        git config --global user.name "${env.committer_name}"
+        git tag ${tag}
+        git push https://$GITHUB_TOKEN@github.com/${env.repo_name_full}.git ${tag}
+    """
+}
+
+def getPrefixVersion(branchName) {
+    if (branchName == 'origin/develop' || branchName.startsWith('origin/feature/')) {
+        return '-beta'
+    } else if (branchName.startsWith('origin/release/') || branchName == 'origin/nonprod') {
+        return '-rc'
+    } else {
+        return ''
     }
 }
