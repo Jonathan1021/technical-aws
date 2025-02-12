@@ -23,7 +23,7 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('token-jenkins')
-        STAGE = 'dev'
+        STAGE = ''
         TAG = ''
     }
 
@@ -145,9 +145,8 @@ def deployArtifactory(artifactoryId) {
     build job: "${env.JOB_NAME}-deploy",
         parameters: [   
             [$class: 'StringParameterValue', name: 'ArtifactoryId', value: "${artifactoryId}" ],
-            [$class: 'StringParameterValue', name: 'Stage', value: "${env.STAGE}"],
+            [$class: 'StringParameterValue', name: 'Stage', value: STAGE],
             [$class: 'StringParameterValue', name: 'Email', value: "${env.committer_email}"]
         ],
-        propagate: false,
-        cause: "Deployed by ${env.committer_name} <${env.committer_email}> in Stage ${env.STAGE}. Branch: ${env.GIT_BRANCH}, Artifactory: ${artifactoryId}"
+        propagate: false
 }
