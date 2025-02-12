@@ -46,10 +46,12 @@ pipeline {
             }
         }
 
-        stage('Email') {
+        stage('Publish Artifactory') {
             steps {
                 script {
-                    
+                    sh '''
+                    echo Publish...
+                    '''
                 }
             }
         }
