@@ -102,13 +102,6 @@ def createTag() {
     def day = currentDate.format('dd')
     def hour = currentDate.format('HH')
 
-    def tagSuffixMap = [
-        'origin/develop': '-beta',     
-        'origin/feature/*': '-beta', 
-        'origin/release/*': '-rc',
-        'default': ''
-    ]
-
     def prefix = getPrefixVersion(env.GIT_BRANCH)
 
     def tag = "v${year}.${month}.${day}${prefix}.$BUILD_ID"
