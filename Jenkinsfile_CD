@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     def userInput = input message: 'Please confirm deployment', 
-                                        ok: "Approve deployment to ${params.Stage}"
+                                        ok: "Approve deployment to ${params.Stage}",
                                         parameters: [
                                             text(name: 'Comment', defaultValue: '', description: 'Provide additional information')
                                         ],
