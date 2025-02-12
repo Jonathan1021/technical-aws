@@ -109,7 +109,7 @@ def notificationSuccess(tag) {
 
     Version was built from branch ${env.GIT_BRANCH} in commit ${env.commit}
 
-    See tag created: https://github.com/${env.repo_name_full}}/releases/tag/${tag}
+    See tag created: https://github.com/${env.repo_name_full}/releases/tag/${tag}
 
     See job here: ${env.BUILD_URL}
 
