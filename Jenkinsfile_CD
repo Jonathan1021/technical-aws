@@ -76,7 +76,7 @@ def notificationError() {
     bodyText = """
     Hi there!!
 
-    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment.
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment. 
 
     See job here: ${env.BUILD_URL}
 
