@@ -141,7 +141,7 @@ def notificationSuccess(tag) {
 }
 
 def deployArtifactory(artifactoryId) {
-    build job: '${env.JOB_NAME}-deploy',
+    build job: "${env.JOB_NAME}-deploy",
         parameters: [
             string(name: 'ArtifactoryId', value: artifactoryId),
             choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], value: env.STAGE)
