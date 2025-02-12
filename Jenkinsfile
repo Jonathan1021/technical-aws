@@ -112,7 +112,7 @@ def createTag() {
     def tagSuffixMap = [
         'origin/develop': '-beta',     
         'origin/feature/*': '-beta', 
-        'origin/release/*': '-rc'
+        'origin/release/*': '-rc',
         'default': ''
     ]
 
