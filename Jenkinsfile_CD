@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     parameters {
+        string(name: 'Email', defaultValue: '', description: 'Email. Ex: example@hdiexample.com.co')
         string(name: 'ArtifactoryId', defaultValue: '', description: 'Artifactory ID. Ex: v25.02.12-rc.306')
         choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], description: 'Stage or Enviroment to deployed. Ex: dev')
     }
@@ -41,32 +42,45 @@ pipeline {
     post {
         success {
             script {
-                notificationSuccess("${params.ArtifactoryId}")
+                notificationSuccess()
+            }
+        }
+        failure {
+            script {
+                notificationError()
             }
         }    
     }
 }
 
 def notificationSuccess() {
-    def subject = ""
+    def subject = "${Email}"
     def bodyText = ""
-    subject = "Released in ${env.repo_name}"
+    subject = "[${params.Stage}] - Released Success in ${env.JOB_NAME} - ${params.ArtifactoryId}"
     bodyText = """
     Hi there!!
 
-    You pushed in ${env.clone_url} and it is now released.
-
-    Version was built from branch ${env.GIT_BRANCH} in commit ${env.commit}
-
-    See tag created: https://github.com/${env.repo_name_full}/releases/tag/${tag}
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment.
 
     See job here: ${env.BUILD_URL}
 
     See log here: ${env.BUILD_URL}consoleText
     """
-    echo "Sending email with subject '${subject}' and content:\n${bodyText}"
+    echo "Sending email with subject '${Email}' and content:\n${bodyText}"
 }
 
 def notificationError() {
+    def subject = "${Email}"
+    def bodyText = ""
+    subject = "[${params.Stage}] - Released Error in ${env.JOB_NAME} - ${params.ArtifactoryId}"
+    bodyText = """
+    Hi there!!
 
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment.
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${Email}' and content:\n${bodyText}"
 }
