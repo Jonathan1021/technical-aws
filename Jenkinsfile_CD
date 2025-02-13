@@ -22,7 +22,7 @@ pipeline {
                 script {
                     deleteDir()
                     USER_INPUT = [Programmed: false, Schedule: '', Comment: '', userSubmitter: '']
-                    currentBuild.displayName = "${params.Stage}-${BUILD_NUMBER}"
+                    currentBuild.displayName = "${params.Stage}-${params.ArtifactoryId}-${BUILD_NUMBER}"
                 }
             }
         }
