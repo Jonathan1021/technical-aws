@@ -24,7 +24,7 @@ pipeline {
     options { 
         timestamps()
         timeout(time: 8, unit: 'HOURS')
-    )
+    }
 
     environment {
         GITHUB_TOKEN = credentials('token-jenkins')
