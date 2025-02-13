@@ -11,6 +11,11 @@ pipeline {
         USER_INPUT = null
     }
 
+    options {
+        timestamps()
+        timeout(time: 8, unit: 'HOURS')
+    }
+
     stages {
         stage('Configuration') {
             steps {
@@ -124,6 +129,9 @@ pipeline {
     }
 
     post {
+        always {
+            cleanWs()
+        }
         success {
             script {
                 notificationSuccess()
