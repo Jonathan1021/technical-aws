@@ -1,0 +1,188 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'Email', defaultValue: '', description: 'Email. Ex: example@hdiexample.com.co')
+        string(name: 'ArtifactoryId', defaultValue: '', description: 'Artifactory ID. Ex: v25.02.12-rc.306')
+        choice(name: 'Stage', choices: ['dev', 'nonprod', 'uat', 'prod'], description: 'Stage or Enviroment to deployed. Ex: dev')
+    }
+
+    environment {
+        USER_INPUT = null
+    }
+
+    options {
+        timestamps()
+        timeout(time: 8, unit: 'HOURS')
+    }
+
+    stages {
+        stage('Configuration') {
+            steps {
+                script {
+                    deleteDir()
+                    USER_INPUT = [Programmed: false, Schedule: '', Comment: '', userSubmitter: '']
+                }
+            }
+        }
+
+        stage('Approver') {
+            when {
+                expression {
+                    return params.Stage == "prod" || params.Stage == "nonprod" || params.Stage == "uat"
+                }
+            }
+            steps {
+                script {
+                    def date = getCurrentDay()
+                    USER_INPUT = input message: 'Please confirm deployment', 
+                                        ok: "Approve deployment to ${params.Stage}",
+                                        parameters: [
+                                            booleanParam(name: 'Programmed', defaultValue: false, description: '(Optional) Do you want to schedule the deployment?'),
+                                            string(name: 'Schedule', description: "(Optional) If I check, the programming box. Select deployment time. Deployment is scheduled for ${date}"),
+                                            // choice(name: 'Schedule', 
+                                            //     choices: ['00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', 
+                                            //                 '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', 
+                                            //                 '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30'],
+                                            //     description: "(Optional) If I check, the programming box. Select deployment time. Deployment is scheduled for ${date}"),
+                                            text(name: 'Comment', defaultValue: '', description: 'Provide additional information')
+                                        ],
+                                        submitterParameter: 'userSubmitter'
+                    sh """
+                    echo USER_INPUT: ${USER_INPUT}
+                    echo Deploying ${params.Stage}..
+                    echo User approved ${USER_INPUT.userSubmitter}
+                    """
+                }
+            }
+        }
+
+        stage('Schedule') {
+            when {
+                expression {
+                    return USER_INPUT.Programmed == true
+                }
+            }
+            steps {
+                script {
+                    // Get current date and selected time
+                    def currentDateObject = new Date()
+                    def selectedTime = USER_INPUT.Schedule
+
+                    // Create the date format including the current date with the selected time
+                    def dateFormat = new java.text.SimpleDateFormat('dd-MM-yyyy HH:mm')
+                    def selectedDateTime = dateFormat.parse(currentDateObject.format('dd-MM-yyyy') + " " + selectedTime)
+
+                    // Calculate the difference in milliseconds between the selected time and the current time
+                    def timeDifferenceMillis = selectedDateTime.getTime() - currentDateObject.getTime()
+
+                    // If the selected time has already passed, adjust to the same time on the next day
+                    if (timeDifferenceMillis < 0) {
+                        selectedDateTime = dateFormat.parse(currentDateObject.plus(1).format('dd-MM-yyyy') + " " + selectedTime)
+                        timeDifferenceMillis = selectedDateTime.getTime() - currentDateObject.getTime()
+                    }
+
+                    // Calculate the sleep time in seconds
+                    def timeDifferenceSeconds = timeDifferenceMillis / 1000
+
+                    // Print the difference and sleep for the calculated time
+                    echo "Time to wait until the selected time: ${timeDifferenceSeconds} seconds."
+                    echo "Sleeping for ${timeDifferenceSeconds} seconds until ${selectedTime}."
+                    echo "The deployment will execute at: ${selectedDateTime.format('HH:mm')} on ${selectedDateTime.format('dd-MM-yyyy')}"
+
+                    sleep(time: timeDifferenceSeconds, unit: 'SECONDS')
+
+                    echo "Deployment executed at the selected time!"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh """
+                    echo Deploying ${params.Stage}...
+                    """
+                }
+            }
+        }
+
+        stage('Test Integration') {
+            steps {
+                script {
+                    sh '''
+                    echo Test Integration...
+                    '''
+                }
+            }
+        }
+
+        stage('Test Performance') {
+            steps {
+                script {
+                    sh '''
+                    echo Test Performance...
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            script {
+                notificationSuccess()
+            }
+        }
+        failure {
+            script {
+                notificationError()
+            }
+        }    
+    }
+}
+
+def getCurrentDay() {
+    def fechaActual = new Date()
+                    
+    // Formatear la fecha a "día-mes-año"
+    def fechaFormateada = fechaActual.format('dd-MM-yyyy')
+
+    // Imprimir la fecha en los logs
+    return fechaFormateada
+}
+
+def notificationSuccess() {
+    def subject = "${Email}"
+    def bodyText = ""
+    subject = "[${params.Stage}] - Released Success in ${env.JOB_NAME} - ${params.ArtifactoryId}"
+    bodyText = """
+    Hi there!!
+
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment.
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${Email}' and content:\n${bodyText}"
+}
+
+def notificationError() {
+    def subject = "${Email}"
+    def bodyText = ""
+    subject = "[${params.Stage}] - Released Error in ${env.JOB_NAME} - ${params.ArtifactoryId}"
+    bodyText = """
+    Hi there!!
+
+    Deployment successful! Artifactory ID: ${params.ArtifactoryId} to the ${params.Stage} environment. 
+
+    See job here: ${env.BUILD_URL}
+
+    See log here: ${env.BUILD_URL}consoleText
+    """
+    echo "Sending email with subject '${Email}' and content:\n${bodyText}"
+}
