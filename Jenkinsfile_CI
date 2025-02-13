@@ -160,5 +160,5 @@ def deployArtifactory(artifactoryId) {
             [$class: 'StringParameterValue', name: 'Email', value: "${env.committer_email}"]
         ],
         propagate: false,
-        wait: false
+        wait: true
 }
