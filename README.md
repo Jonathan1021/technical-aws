@@ -5,3 +5,5 @@
 3. Lanzar comando de creacion stack master, apuntando al master.yml del bucket de s3 creado en el punto 1.
 4. Subir documento HTML al bucket s3. Default: "s3-demo-${Stage}-${CostCenter}"
 5. Cargar items a la tabla de dynamo. Default: "${Stage}-inventory-${CostCenter}"
+
+Hola esta es mi primera rama feature a desplegar en dev
