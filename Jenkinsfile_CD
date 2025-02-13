@@ -97,7 +97,12 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Dev') {
+            when {
+                expression {
+                    return params.Stage == "dev"
+                }
+            }
             steps {
                 script {
                     sh """
@@ -106,6 +111,38 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy Nonprod') {
+            when {
+                expression {
+                    return params.Stage == "nonprod"
+                }
+            }
+            steps {
+                script {
+                    sh """
+                    echo Deploying ${params.Stage}...
+                    """
+                }
+            }
+        }
+
+        stage('Deploy Prod') {
+            when {
+                expression {
+                    return params.Stage == "prod"
+                }
+            }
+            steps {
+                script {
+                    sh """
+                    echo Deploying ${params.Stage}...
+                    """
+                }
+            }
+        }
+
+
 
         stage('Test Integration') {
             steps {
