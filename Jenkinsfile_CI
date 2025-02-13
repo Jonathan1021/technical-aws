@@ -68,6 +68,7 @@ pipeline {
                     echo Publish...
                     '''
                     TAG = createTag()
+                    currentBuild.displayName = "${STAGE}-${TAG}-${BUILD_NUMBER}"
                 }
             }
         }
